@@ -1,0 +1,19 @@
+cam
+    sets up video sources
+    applies preprocessing
+    returns processed frames
+
+detect
+    takes frames
+    returns angles of detected objects relative to the camera center
+    may need a way to manually detect focal length
+
+triangulation
+    given angles of detected objects
+    returns 3D coordinates
+    can improve by calculating coordinates ahead of time
+
+predict
+    given 3D coordinates
+    returns 3D velocity
+        Assumes motion can be modeled with quadratic
