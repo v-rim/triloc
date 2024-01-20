@@ -17,3 +17,9 @@ predict
     given 3D coordinates
     returns 3D velocity
         Assumes motion can be modeled with quadratic
+
+Assigning cameras
+    One of the issues with OpenCV video streams is that the order of the streams
+    can change depending on the order that the cameras are plugged in. However,
+    once all the cameras are plugged in it should be constant. There needs to be
+    a way to assign the correct video streams to the right positions.

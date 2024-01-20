@@ -79,40 +79,6 @@ class LSLocalizer:
         return np.linalg.solve(m, b)
 
 
-# Not implemented correctly - needs 3 angles not 2
-# def angles_to_transform(angles):
-#     theta, phi = angles
-#     transform = np.array(
-#         [
-#             [
-#                 np.cos(phi) * np.cos(theta),
-#                 np.cos(phi) * np.sin(theta),
-#                 np.sin(phi) * -np.sin(theta),
-#                 0,
-#             ],
-#             [
-#                 np.cos(phi) * -np.sin(theta),
-#                 np.cos(phi) * np.cos(theta),
-#                 np.sin(phi) * -np.cos(theta),
-#                 0,
-#             ],
-#             [
-#                 np.sin(phi),
-#                 np.sin(phi),
-#                 np.cos(phi),
-#                 0,
-#             ],
-#             [
-#                 0,
-#                 0,
-#                 0,
-#                 1,
-#             ],
-#         ]
-#     )
-#     return transform
-
-
 if __name__ == "__main__":
     np.set_printoptions(formatter={"float": "{: 0.4f}".format})
 

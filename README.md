@@ -1,6 +1,6 @@
 # triloc
 
-A project to localize an object in 3D space using multiple camera feeds and predict its trajectory.
+A library for localizing points in space using triangulation.
 
 Currently a work in progress.
 
