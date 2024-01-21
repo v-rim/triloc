@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     past_frame_queue = []
     past_frame = 0
-    frame_delay = 10
+    frame_delay = 15
 
     while True:
         ret, frame = cap.read()
@@ -35,9 +35,39 @@ if __name__ == "__main__":
 
         mask = cv.inRange(frame_hsv, lower_threshold, higher_threshold)
         delay_mask = mask - past_frame
+        delay_mask[delay_mask < 128] = 0 # Strange edge case where it can be 1
         delay_mask = cv.erode(delay_mask, kernel, iterations=5)
         delay_mask = cv.dilate(delay_mask, kernel, iterations=1)
+
+        # print(f"{np.nonzero(delay_mask) = }")
+        # print(np.nonzero(delay_mask))
+        # input()
+
+        # print(f"{np.mean(delay_mask)}")
+        x_list, y_list = np.nonzero(delay_mask)
+
+        if x_list is None or len(x_list) == 0:
+            x_list = [0]
+        if y_list is None or len(y_list) == 0:
+            y_list = [0]
+
+        # print(f"{x_list = }")
+        # print(f"{y_list = }")
+        # print(f"{np.median(x_list) = }")
+        # print(f"{np.median(y_list) = }")
+        x_median = int(np.median(x_list))
+        y_median = int(np.median(y_list))
+
         mask_frame = cv.cvtColor(delay_mask, cv.COLOR_GRAY2BGR)
+
+        # print(f"{x_median = }")
+        # print(f"{y_median = }")
+
+        # mask_frame[x_median, y_median] = [0, 0, 100]
+        # print(f"{delay_mask[x_median, y_median] = }")
+        # print(f"{np.mean(delay_mask)}")
+        if np.mean(delay_mask) > 0.1:
+            cv.circle(mask_frame, (y_median, x_median), 8, (0, 0, 255), -1)
 
         cv.imshow("Motion detection", mask_frame)
 
