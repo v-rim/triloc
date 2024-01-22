@@ -27,11 +27,10 @@ class LSLocalizer:
     def transform_rays(self, ray_list):
         transformed_rays = []
         for i, ray in enumerate(ray_list):
-            ray_x, ray_y, ray_z = ray
             transform = self.camera_transforms[i]
             transform_origin = transform[:, 3]
 
-            ray = transform @ [ray_x, ray_y, ray_z, 1]
+            ray = transform @ [ray[0], ray[0], ray[0], 1]
             ray -= transform_origin
             transformed_rays.append(ray[:3])
 
