@@ -39,8 +39,11 @@ class Camera:
 
     def point_to_ray(self, point):
         """https://stackoverflow.com/a/55083660"""
-        # point = np.array(point)
-        return self.Ki @ np.array([point[0], point[1], 1.0])
+        ray = self.Ki @ np.array([point[0], point[1], 1.0])
+        
+        # Convert from standard convention
+        # TODO: Utilize standard convention everywhere
+        return np.array([ray[0], ray[2], -ray[1]])
 
 
 def assign_captures(camera_list):
