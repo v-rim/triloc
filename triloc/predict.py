@@ -68,7 +68,7 @@ def regression_test():
     # Predicting a quadratic function
     test_size = 1000
     # Test function
-    f = lambda x: 0.2 * x**2 - 3.8 * x - 5.1
+    def f(x): return 0.2 * x**2 - 3.8 * x - 5.1
     # Gaussian noise to be added to the quadratic signal
     noise = np.random.randn(test_size)
     # You can play around with other noise (like sinusoidal)
