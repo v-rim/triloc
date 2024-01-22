@@ -9,7 +9,10 @@ class Camera:
 
         self.id = -1
         self.cap = None
-        self.Ki = np.linalg.inv(camera_matrix)
+        self.Ki = None
+        
+        if camera_matrix is not None:
+            self.Ki = np.linalg.inv(camera_matrix)
 
     def get_name(self):
         return self.name
