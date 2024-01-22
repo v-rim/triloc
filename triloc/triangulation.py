@@ -18,26 +18,20 @@ class LSLocalizer:
     def __init__(self, camera_transforms):
         self.camera_transforms = np.array(camera_transforms)
 
-    def predict(self, angle_pair_array, weights):
-        ray_directions = self.angles_to_rays(angle_pair_array)
+    def predict(self, ray_list, weights):
+        ray_directions = self.transform_rays(ray_list)
         ray_points = self.camera_transforms[:, :3, 3]
         # print(f"{ray_points = }")
         return self.find_nearest_point(ray_points, ray_directions, weights)
 
-    def angles_to_rays(self, ray_angles):
+    def transform_rays(self, ray_list):
         transformed_rays = []
-        for i in range(len(ray_angles)):
-            theta, phi = ray_angles[i]
+        for i, ray in enumerate(ray_list):
+            ray_x, ray_y, ray_z = ray
             transform = self.camera_transforms[i]
             transform_origin = transform[:, 3]
 
-            ray = [
-                np.cos(phi) * np.sin(theta),
-                np.cos(phi) * np.cos(theta),
-                np.sin(phi),
-                1,
-            ]
-            ray = transform @ ray
+            ray = transform @ [ray_x, ray_y, ray_z, 1]
             ray -= transform_origin
             transformed_rays.append(ray[:3])
 
@@ -128,14 +122,14 @@ if __name__ == "__main__":
     nearest_point = lsl.find_nearest_point(ray_points, ray_directions, weights)
     print(f"{nearest_point = }")
 
-    # test angles_to_ray
-    ray_1_angles = (0, 0)
-    ray_2_angles = (np.pi / 4, 0)
-    ray_angles = [ray_1_angles, ray_2_angles]
+    # test transform_rays
+    ray_1 = (0, 1, 0)
+    ray_2 = (1, 1, 0)
+    ray_list = [ray_1, ray_2]
 
-    transformed_rays = lsl.angles_to_rays(ray_angles)
+    transformed_rays = lsl.transform_rays(ray_list)
     print(f"transformed_rays = \n{transformed_rays}")
 
     # test predict
-    predicted_point = lsl.predict(ray_angles, np.array([1, 1]))
+    predicted_point = lsl.predict(ray_list, np.array([1, 1]))
     print(f"{predicted_point = }")
