@@ -37,7 +37,7 @@ class Camera:
         """https://stackoverflow.com/a/55083660
         """
         # point = np.array(point)
-        return self.Ki @ [point[0], point[0], 1.0]
+        return self.Ki @ np.array([point[0], point[0], 1.0])
 
 
 def assign_captures(camera_list):
