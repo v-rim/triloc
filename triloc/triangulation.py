@@ -30,7 +30,7 @@ class LSLocalizer:
             transform = self.camera_transforms[i]
             transform_origin = transform[:, 3]
 
-            ray = transform @ [ray[0], ray[0], ray[0], 1]
+            ray = transform @ [ray[0], ray[1], ray[2], 1]
             ray -= transform_origin
             transformed_rays.append(ray[:3])
 
@@ -54,6 +54,7 @@ class LSLocalizer:
 
         if weights is None:
             weights = np.ones(n)
+        weights = np.array(weights)
 
         direction_magnitudes = np.linalg.norm(ray_directions, axis=1)
         ray_directions = weights[:, None] * (
