@@ -84,7 +84,7 @@ def blit_test():
 
     # animated=True tells matplotlib to only draw the artist when we
     # explicitly request it
-    (ln,) = ax.plot(x, np.sin(x), animated=True)
+    (ln,) = ax.plot(x, np.sin(x), "o", animated=True)
 
     # make sure the window is raised, but the script keeps going
     plt.show(block=False)
