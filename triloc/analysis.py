@@ -74,17 +74,26 @@ def blit_test():
     # See https://matplotlib.org/stable/users/explain/animations/blitting.html
     # See https://stackoverflow.com/a/38126963
     tic = time.time()
-    frame_count = 500
+    frame_count = 5000
 
-    x = np.linspace(0, 2 * np.pi, 5)
+    x = np.array([0])  # np.linspace(0, 2 * np.pi, 5)
     # x = 0
     # y = 0
 
-    fig, ax = plt.subplots()
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
 
     # animated=True tells matplotlib to only draw the artist when we
     # explicitly request it
-    (ln,) = ax.plot(x, np.sin(x), "o", animated=True)
+    (ln,) = ax.plot(x, np.sin(x), 0, "o", animated=True)
+
+    ax.set_xlim([-1.5, 1.5])
+    ax.set_ylim([-1.5, 1.5])
+    ax.set_zlim([-0.5, 3.5])
+
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
 
     # make sure the window is raised, but the script keeps going
     plt.show(block=False)
@@ -111,7 +120,8 @@ def blit_test():
         # reset the background back in the canvas state, screen unchanged
         fig.canvas.restore_region(bg)
         # update the artist, neither the canvas state nor the screen have changed
-        ln.set_ydata(np.sin(x + (j / 100) * np.pi))
+        ln.set_data(np.cos(x + (j / 100) * np.pi), np.sin(x + (j / 100) * np.pi))
+        ln.set_3d_properties(x + 3 * (j % 200.0) / 200.0, "z")
         # re-render the artist, updating the canvas state, but not the screen
         ax.draw_artist(ln)
         # copy the image to the GUI state, but screen might not be changed yet
