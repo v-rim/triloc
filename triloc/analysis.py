@@ -1,4 +1,5 @@
 # TODO: Think of a better name for this file
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +26,7 @@ class PointInSpace:
 
         zero = np.array([0])
 
+        # Not sure why assignment needs to be like this
         (self.point,) = self.ax.plot(zero, zero, zero, m, animated=True)
         plt.show(block=False)
         plt.pause(0.1)
@@ -50,12 +52,13 @@ class PointInSpace:
 if __name__ == "__main__":
     lim = [-2, 2]
     pp = PointInSpace(lim)
-
     frame_count = 1000
-    zero = np.array([0])
 
+    tic = time.time()
     for j in range(frame_count):
         x = np.cos((j / 100) * np.pi)
         y = np.sin((j / 100) * np.pi)
         z = 3 * (j % 200.0) / 200.0
         pp.draw_point([x, y, z])
+
+    print(f"Average FPS: {frame_count / (time.time() - tic)}")
