@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from analysis import PointInSpace
 from camera import Camera, assign_captures, release_captures
 from detect import BinaryMotionDetector
 from triangulation import LSLocalizer
@@ -62,6 +63,10 @@ def double_camera_test():
             [0, 0, 0, 1],
         ]
     )
+    lim_x = [-1, 1]
+    lim_y = [0, 2]
+    lim_z = [-0.5, 0.5]
+    predicted_point = [0, 0, 0]
 
     cam_1 = Camera("Left Camera", cam_1_matrix)
     cam_2 = Camera("Right Camera", cam_2_matrix)
@@ -69,6 +74,8 @@ def double_camera_test():
     detector = BinaryMotionDetector(hsv, deltas, 1e10)  # Turn off isolation
 
     lsl = LSLocalizer([T_1, T_2])
+
+    plotter = PointInSpace(lim_x, lim_y, lim_z)
 
     assign_captures([cam_1, cam_2])
     while True:
@@ -94,6 +101,7 @@ def double_camera_test():
 
         cv.imshow("Left view", frame_1)
         cv.imshow("Right view", frame_2)
+        plotter.draw_point(predicted_point)
 
         if cv.waitKey(1) == ord("q"):
             break
