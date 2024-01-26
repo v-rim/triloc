@@ -43,6 +43,10 @@ def double_camera_test():
 
     hsv = [12, 175, 225]
     deltas = [16, 80, 120]
+    
+    # hsv = [13, 179, 208]
+    # deltas = [33, 33, 77]
+    
 
     # first camera at origin
     T_1 = np.array(
@@ -71,6 +75,7 @@ def double_camera_test():
     cam_1 = Camera("Left Camera", cam_1_matrix)
     cam_2 = Camera("Right Camera", cam_2_matrix)
 
+    # detector = BinaryMotionDetector(hsv, deltas, 30)  # Turn off isolation
     detector = BinaryMotionDetector(hsv, deltas, 1e10)  # Turn off isolation
 
     lsl = LSLocalizer([T_1, T_2])
