@@ -1,3 +1,5 @@
+from threading import Thread
+
 import cv2 as cv
 import numpy as np
 
@@ -10,9 +12,13 @@ class Camera:
         self.id = -1
         self.cap = None
         self.Ki = None
-        
+
         if camera_matrix is not None:
             self.Ki = np.linalg.inv(camera_matrix)
+
+        self.stopped = False
+        self.frame = None
+        self.ret = None
 
     def get_name(self):
         return self.name
@@ -27,20 +33,28 @@ class Camera:
     def has_id(self):
         return not self.id == -1
 
+    def update(self):
+        while True:
+            if self.stopped:
+                return
+
+            self.ret, self.frame = self.cap.read()
+
     def set_cap(self, cap):
         self.cap = cap
+        Thread(target=self.update, args=()).start()
 
     def get_frame(self):
-        ret, frame = self.cap.read()
-        return ret, frame
+        return self.ret, self.frame
 
     def release(self):
+        self.stopped = True
         self.cap.release()
 
     def point_to_ray(self, point):
         """https://stackoverflow.com/a/55083660"""
         ray = self.Ki @ np.array([point[0], point[1], 1.0])
-        
+
         # Convert from standard convention
         # TODO: Utilize standard convention everywhere
         return np.array([ray[0], ray[2], -ray[1]])
@@ -69,6 +83,7 @@ def assign_captures(camera_list):
         key = cv.waitKey(1)
         if key == ord("q"):
             print("Ending capture assignment")
+            cv.destroyAllWindows()
             break
         elif key == ord("s"):
             print(f"Skipping capture [{capture_index}]")
@@ -97,7 +112,7 @@ if __name__ == "__main__":
             [0, 500, 240],
             [0, 0, 1],
         ]
-    ) 
+    )
 
     cam_1 = Camera("Main Camera Name", camera_matrix)
     print(f"Does cam_1 currently have a set id? {cam_1.has_id()}")
@@ -105,10 +120,9 @@ if __name__ == "__main__":
     print(f"Does cam_1 currently have a set id? {cam_1.has_id()}")
     if cam_1.has_id():
         print(f"{cam_1.get_id() = }")
-        
+
     image_point_1 = [0, 0]
     image_point_2 = [320, 240]
-    
+
     print(f"{cam_1.point_to_ray(image_point_1) = }")
     print(f"{cam_1.point_to_ray(image_point_2) = }")
-
