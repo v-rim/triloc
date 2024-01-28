@@ -88,6 +88,8 @@ class RecursivePolynomialFit:
         return Polynomial(coef).roots()
 
     def reset(self):
+        if self.RLS.num_obs == 0:
+            return
         self.RLS = RLS(self.degree, self.forgetting_factor)
 
 
