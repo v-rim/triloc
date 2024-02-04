@@ -1,8 +1,11 @@
+from time import time
+
 import cv2 as cv
 import numpy as np
 from analysis import PointInSpace
 from camera import Camera, assign_captures, release_captures
 from detect import BinaryMotionDetector
+from predict import RecursivePolynomialFit
 from triangulation import LSLocalizer
 
 
@@ -43,10 +46,9 @@ def double_camera_test():
 
     hsv = [12, 175, 225]
     deltas = [16, 80, 120]
-    
+
     # hsv = [13, 179, 208]
     # deltas = [33, 33, 77]
-    
 
     # first camera at origin
     T_1 = np.array(
@@ -72,6 +74,13 @@ def double_camera_test():
     lim_z = [-0.5, 0.5]
     predicted_point = [0, 0, 0]
 
+    detection_start_time = time()
+    t = time() - detection_start_time
+
+    detected_frames = 0
+    detected_frames_cap = 30
+    detected_frame_threshold = 5
+
     cam_1 = Camera("Left Camera", cam_1_matrix)
     cam_2 = Camera("Right Camera", cam_2_matrix)
 
@@ -81,6 +90,10 @@ def double_camera_test():
     lsl = LSLocalizer([T_1, T_2])
 
     plotter = PointInSpace(lim_x, lim_y, lim_z)
+
+    x_rpf = RecursivePolynomialFit(2)
+    y_rpf = RecursivePolynomialFit(2)
+    z_rpf = RecursivePolynomialFit(2)
 
     assign_captures([cam_1, cam_2])
     while True:
@@ -93,16 +106,30 @@ def double_camera_test():
         if ret_1:
             cv.circle(frame_1, (x_median_1, y_median_1), 8, (0, 0, 255), -1)
             ray_1 = cam_1.point_to_ray((x_median_1, y_median_1))
-            # print(f"Left camera ray to ball center: {ray_1}")
-
         if ret_2:
             cv.circle(frame_2, (x_median_2, y_median_2), 8, (0, 0, 255), -1)
             ray_2 = cam_2.point_to_ray((x_median_2, y_median_2))
-            # print(f"Right camera ray to ball center: {ray_2}")
-
         if ret_1 and ret_2:
             predicted_point = lsl.predict([ray_1, ray_2], [1, 1])
-            print(f"Predicted ball position: {predicted_point}")
+            # print(f"Predicted ball position: {predicted_point}")
+
+            detected_frames += 1
+            detected_frames = min(max(0, detected_frames), detected_frames_cap)
+            
+            if detected_frames > detected_frame_threshold:
+                t = time() - detection_start_time
+                x_rpf.add_point(t, predicted_point[0])
+                y_rpf.add_point(t, predicted_point[1])
+                z_rpf.add_point(t, predicted_point[2])
+            else:
+                print(f"Detection that started at {detection_start_time}")
+                print(f"{x_rpf.get_coef().round(3) = }")
+                print(f"{y_rpf.get_coef().round(3) = }")
+                print(f"{z_rpf.get_coef().round(3) = }")
+                x_rpf.reset()
+                y_rpf.reset()
+                z_rpf.reset()
+                detection_start_time = time()
 
         cv.imshow("Left view", frame_1)
         cv.imshow("Right view", frame_2)
