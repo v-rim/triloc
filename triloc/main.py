@@ -77,6 +77,7 @@ def double_camera_test():
     detection_start_time = time()
     t = time() - detection_start_time
 
+    detected = False  # Only used to know when to print coefficients
     detected_frames = 0
     detected_frames_cap = 30
     detected_frame_threshold = 5
@@ -84,7 +85,7 @@ def double_camera_test():
     cam_1 = Camera("Left Camera", cam_1_matrix)
     cam_2 = Camera("Right Camera", cam_2_matrix)
 
-    # detector = BinaryMotionDetector(hsv, deltas, 30)  # Turn off isolation
+    # detector = BinaryMotionDetector(hsv, deltas, 30)  # Turn on isolation
     detector = BinaryMotionDetector(hsv, deltas, 1e10)  # Turn off isolation
 
     lsl = LSLocalizer([T_1, T_2])
@@ -109,27 +110,33 @@ def double_camera_test():
         if ret_2:
             cv.circle(frame_2, (x_median_2, y_median_2), 8, (0, 0, 255), -1)
             ray_2 = cam_2.point_to_ray((x_median_2, y_median_2))
+
         if ret_1 and ret_2:
             predicted_point = lsl.predict([ray_1, ray_2], [1, 1])
             # print(f"Predicted ball position: {predicted_point}")
-
             detected_frames += 1
-            detected_frames = min(max(0, detected_frames), detected_frames_cap)
-            
-            if detected_frames > detected_frame_threshold:
-                t = time() - detection_start_time
-                x_rpf.add_point(t, predicted_point[0])
-                y_rpf.add_point(t, predicted_point[1])
-                z_rpf.add_point(t, predicted_point[2])
-            else:
+        else:
+            detected_frames -= 1
+        detected_frames = min(max(0, detected_frames), detected_frames_cap)
+
+        if detected_frames > detected_frame_threshold:
+            if not detected:
+                detected = True
+            t = time() - detection_start_time
+            x_rpf.add_point(t, predicted_point[0])
+            y_rpf.add_point(t, predicted_point[1])
+            z_rpf.add_point(t, predicted_point[2])
+        else:
+            if detected:
+                detected = False
                 print(f"Detection that started at {detection_start_time}")
                 print(f"{x_rpf.get_coef().round(3) = }")
                 print(f"{y_rpf.get_coef().round(3) = }")
                 print(f"{z_rpf.get_coef().round(3) = }")
-                x_rpf.reset()
-                y_rpf.reset()
-                z_rpf.reset()
-                detection_start_time = time()
+            x_rpf.reset()
+            y_rpf.reset()
+            z_rpf.reset()
+            detection_start_time = time()
 
         cv.imshow("Left view", frame_1)
         cv.imshow("Right view", frame_2)
